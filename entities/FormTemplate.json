@@ -1,0 +1,41 @@
+{
+  "name": "FormTemplate",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Template name"
+    },
+    "country": {
+      "type": "string"
+    },
+    "gender": {
+      "type": "string"
+    },
+    "monthly_wage": {
+      "type": "number"
+    },
+    "economic_activity": {
+      "type": "string"
+    },
+    "occupation": {
+      "type": "string"
+    },
+    "position": {
+      "type": "string"
+    },
+    "education_level": {
+      "type": "string"
+    },
+    "company_size": {
+      "type": "string"
+    },
+    "experience_years": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "country"
+  ]
+}

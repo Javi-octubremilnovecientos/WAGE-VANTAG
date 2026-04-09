@@ -1,0 +1,34 @@
+{
+  "name": "WageComparison",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Name/title for this comparison"
+    },
+    "countries": {
+      "type": "array",
+      "description": "Countries being compared",
+      "items": {
+        "type": "string"
+      }
+    },
+    "form_data": {
+      "type": "object",
+      "description": "All form inputs used for this comparison"
+    },
+    "results": {
+      "type": "object",
+      "description": "Computed comparison results and chart data"
+    },
+    "is_premium": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this used premium features"
+    }
+  },
+  "required": [
+    "title",
+    "countries"
+  ]
+}
