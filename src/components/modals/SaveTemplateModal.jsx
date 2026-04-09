@@ -1,16 +1,20 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Save } from 'lucide-react';
-import { base44 } from '@/api/base44Client';
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { X, Save } from "lucide-react";
 
 export default function SaveTemplateModal({ open, onClose, formData }) {
-  const [name, setName] = useState('');
+  const [name, setName] = useState("");
   const [saving, setSaving] = useState(false);
 
   const handleSave = async () => {
     if (!name.trim()) return;
     setSaving(true);
-    await base44.entities.FormTemplate.create({
+
+    // TODO: Conectar con Supabase para guardar templates
+    // Por ahora guardamos en localStorage
+    const templates = JSON.parse(localStorage.getItem("templates") || "[]");
+    const newTemplate = {
+      id: Date.now().toString(),
       name: name.trim(),
       country: formData.country,
       gender: formData.gender,
@@ -21,9 +25,13 @@ export default function SaveTemplateModal({ open, onClose, formData }) {
       education_level: formData.education_level,
       company_size: formData.company_size,
       experience_years: formData.experience_years,
-    });
+      created_date: new Date().toISOString(),
+    };
+    templates.unshift(newTemplate);
+    localStorage.setItem("templates", JSON.stringify(templates));
+
     setSaving(false);
-    setName('');
+    setName("");
     onClose();
   };
 
@@ -58,11 +66,11 @@ export default function SaveTemplateModal({ open, onClose, formData }) {
             <input
               type="text"
               value={name}
-              onChange={e => setName(e.target.value)}
+              onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Senior Dev - Spain"
               className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring mb-5"
               autoFocus
-              onKeyDown={e => e.key === 'Enter' && handleSave()}
+              onKeyDown={(e) => e.key === "Enter" && handleSave()}
             />
 
             <button
@@ -71,7 +79,7 @@ export default function SaveTemplateModal({ open, onClose, formData }) {
               className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-semibold text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <Save className="w-4 h-4" />
-              {saving ? 'Saving...' : 'Save'}
+              {saving ? "Saving..." : "Save"}
             </button>
           </motion.div>
         </>

@@ -1,11 +1,16 @@
-import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, LogIn } from 'lucide-react';
-import { base44 } from '@/api/base44Client';
+import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { X, LogIn } from "lucide-react";
 
-export default function LoginWarnModal({ open, onClose, message = "Sign in to save your data" }) {
+export default function LoginWarnModal({
+  open,
+  onClose,
+  message = "Sign in to save your data",
+}) {
   const handleLogin = () => {
-    base44.auth.redirectToLogin(window.location.pathname);
+    // TODO: Implementar redirección a login de Supabase
+    console.log("Redirect to login - TODO: Implement Supabase auth");
+    window.location.href = "/login";
   };
 
   return (
@@ -33,7 +38,9 @@ export default function LoginWarnModal({ open, onClose, message = "Sign in to sa
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                 <LogIn className="w-5 h-5 text-primary" />
               </div>
-              <h3 className="font-heading font-bold text-lg mb-2">Sign In Required</h3>
+              <h3 className="font-heading font-bold text-lg mb-2">
+                Sign In Required
+              </h3>
               <p className="text-sm text-muted-foreground mb-6">{message}</p>
 
               <button

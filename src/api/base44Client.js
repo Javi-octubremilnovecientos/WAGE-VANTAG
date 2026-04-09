@@ -1,14 +1,29 @@
-import { createClient } from '@base44/sdk';
-import { appParams } from '@/lib/app-params';
+// TODO: Este archivo será reemplazado por supabaseClient.js
+// Exportación temporal vacía para evitar errores de importación
 
-const { appId, token, functionsVersion, appBaseUrl } = appParams;
-
-//Create a client with authentication required
-export const base44 = createClient({
-  appId,
-  token,
-  functionsVersion,
-  serverUrl: '',
-  requiresAuth: false,
-  appBaseUrl
-});
+export const base44 = {
+  auth: {
+    me: async () => null,
+    isAuthenticated: async () => false,
+    logout: () => {},
+    redirectToLogin: () => {},
+    updateMe: async () => {},
+  },
+  entities: {
+    FormTemplate: {
+      list: async () => [],
+      create: async () => {},
+      delete: async () => {},
+    },
+    WageComparison: {
+      list: async () => [],
+      create: async () => {},
+      delete: async () => {},
+    },
+  },
+  integrations: {
+    Core: {
+      UploadFile: async () => ({ file_url: "" }),
+    },
+  },
+};

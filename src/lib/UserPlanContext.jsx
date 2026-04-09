@@ -1,51 +1,49 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import { useSelector, useDispatch } from "react-redux";
+import {
+  selectPlan,
+  selectIsPremium,
+  selectMaxCountries,
+  selectMaxTemplates,
+  selectMaxSavedComparisons,
+  selectCanExport,
+  selectCanViewMultipleCharts,
+  setPlan as setPlanAction,
+} from "@/store/slices/userPlanSlice";
+import { selectUser, selectIsAuthenticated } from "@/store/slices/authSlice";
 
-const UserPlanContext = createContext();
+/**
+ * Hook useUserPlan - Wrapper sobre selectores de Redux
+ * Mantiene la misma API para compatibilidad con componentes existentes
+ */
+export function useUserPlan() {
+  const dispatch = useDispatch();
 
-export function UserPlanProvider({ children }) {
-  const [plan, setPlan] = useState('free'); // 'free' or 'premium'
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState(null);
+  const plan = useSelector(selectPlan);
+  const isPremium = useSelector(selectIsPremium);
+  const maxCountries = useSelector(selectMaxCountries);
+  const maxTemplates = useSelector(selectMaxTemplates);
+  const maxSavedComparisons = useSelector(selectMaxSavedComparisons);
+  const canExport = useSelector(selectCanExport);
+  const canViewMultipleCharts = useSelector(selectCanViewMultipleCharts);
+  const user = useSelector(selectUser);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      const authed = await base44.auth.isAuthenticated();
-      setIsAuthenticated(authed);
-      if (authed) {
-        const me = await base44.auth.me();
-        setUser(me);
-        setPlan(me.plan || 'free');
-      }
-    };
-    checkAuth();
-  }, []);
+  const setPlan = (newPlan) => dispatch(setPlanAction(newPlan));
 
-  const isPremium = plan === 'premium';
-  const maxCountries = isPremium ? 3 : 2;
-  // Free: 1 template (requires login); Premium: 4
-  const maxTemplates = isPremium ? 4 : 1;
-  // Free: 1 saved comparison (requires login); Premium: 4
-  const maxSavedComparisons = isPremium ? 4 : 1;
-  // Export only for premium
-  const canExport = isPremium;
-  // Multiple chart views only for premium
-  const canViewMultipleCharts = isPremium;
-  // Free logged-in users can save 1 template; premium can save templates without login gate (still need login)
+  // Free users can save templates if logged in
   const canSaveTemplate = isAuthenticated;
 
-  return (
-    <UserPlanContext.Provider value={{
-      plan, setPlan, isPremium, isAuthenticated, user,
-      maxCountries, maxTemplates, maxSavedComparisons, canExport, canViewMultipleCharts, canSaveTemplate,
-    }}>
-      {children}
-    </UserPlanContext.Provider>
-  );
-}
-
-export function useUserPlan() {
-  const ctx = useContext(UserPlanContext);
-  if (!ctx) throw new Error('useUserPlan must be used within UserPlanProvider');
-  return ctx;
+  return {
+    plan,
+    setPlan,
+    isPremium,
+    isAuthenticated,
+    user,
+    maxCountries,
+    maxTemplates,
+    maxSavedComparisons,
+    canExport,
+    canViewMultipleCharts,
+    canSaveTemplate,
+  };
 }

@@ -1,22 +1,28 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Save, Download, Lock, ArrowLeft } from 'lucide-react';
-import BoxPlotChart from '@/components/charts/BoxPlotChart';
-import HistoricalBarChart from '@/components/charts/HistoricalBarChart';
-import SectorPieChart from '@/components/charts/SectorPieChart';
-import DensityCurveChart from '@/components/charts/DensityCurveChart';
-import LoginWarnModal from '@/components/modals/LoginWarnModal';
-import UpgradeModal from '@/components/modals/UpgradeModal';
-import { COUNTRY_WAGE_DATA, HISTORICAL_WAGE_DATA, SECTOR_DISTRIBUTION } from '@/lib/wageData';
-import { useUserPlan } from '@/lib/UserPlanContext';
-import { base44 } from '@/api/base44Client';
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { Save, Download, Lock, ArrowLeft } from "lucide-react";
+import BoxPlotChart from "@/components/charts/BoxPlotChart";
+import HistoricalBarChart from "@/components/charts/HistoricalBarChart";
+import SectorPieChart from "@/components/charts/SectorPieChart";
+import DensityCurveChart from "@/components/charts/DensityCurveChart";
+import LoginWarnModal from "@/components/modals/LoginWarnModal";
+import UpgradeModal from "@/components/modals/UpgradeModal";
+import {
+  COUNTRY_WAGE_DATA,
+  HISTORICAL_WAGE_DATA,
+  SECTOR_DISTRIBUTION,
+} from "@/lib/wageData";
+import { useUserPlan } from "@/lib/UserPlanContext";
 
 export default function WageComparison() {
   const urlParams = new URLSearchParams(window.location.search);
-  const countries = (urlParams.get('countries') || 'Spain,Portugal').split(',').filter(Boolean);
-  const userWage = Number(urlParams.get('wage') || 0);
+  const countries = (urlParams.get("countries") || "Spain,Portugal")
+    .split(",")
+    .filter(Boolean);
+  const userWage = Number(urlParams.get("wage") || 0);
 
-  const { isAuthenticated, isPremium, canExport, canViewMultipleCharts } = useUserPlan();
+  const { isAuthenticated, isPremium, canExport, canViewMultipleCharts } =
+    useUserPlan();
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
@@ -26,12 +32,19 @@ export default function WageComparison() {
       setShowLoginModal(true);
       return;
     }
-    await base44.entities.WageComparison.create({
-      title: countries.join(' vs '),
+    // TODO: Implementar guardado en Supabase cuando se creen tablas de usuario
+    console.log("Saving comparison:", {
+      title: countries.join(" vs "),
       countries,
       form_data: { wage: userWage },
-      results: { wageData: countries.map(c => ({ country: c, ...COUNTRY_WAGE_DATA[c] })) },
+      results: {
+        wageData: countries.map((c) => ({
+          country: c,
+          ...COUNTRY_WAGE_DATA[c],
+        })),
+      },
     });
+    alert("Comparison saved! (Feature pending Supabase tables)");
   };
 
   const handleExport = () => {
@@ -44,7 +57,7 @@ export default function WageComparison() {
       return;
     }
     // Export logic placeholder
-    alert('Export feature coming soon!');
+    alert("Export feature coming soon!");
   };
 
   return (
@@ -66,7 +79,7 @@ export default function WageComparison() {
             Comparison Sheet
           </h1>
           <p className="text-sm text-muted-foreground">
-            {countries.join(' vs ')}
+            {countries.join(" vs ")}
           </p>
         </motion.div>
 
@@ -77,7 +90,9 @@ export default function WageComparison() {
           transition={{ delay: 0.1 }}
           className="bg-card border border-border rounded-2xl p-4 mb-4"
         >
-          <h3 className="font-heading font-semibold text-sm mb-3">Wage Distribution</h3>
+          <h3 className="font-heading font-semibold text-sm mb-3">
+            Wage Distribution
+          </h3>
           <BoxPlotChart
             countries={countries}
             wageDataMap={COUNTRY_WAGE_DATA}
@@ -95,13 +110,20 @@ export default function WageComparison() {
             transition={{ delay: 0.2 }}
             className="bg-card border border-border rounded-2xl p-4 relative"
           >
-            <h3 className="font-heading font-semibold text-sm mb-3">Historical Wages</h3>
-            <HistoricalBarChart data={HISTORICAL_WAGE_DATA} countries={countries} />
+            <h3 className="font-heading font-semibold text-sm mb-3">
+              Historical Wages
+            </h3>
+            <HistoricalBarChart
+              data={HISTORICAL_WAGE_DATA}
+              countries={countries}
+            />
             {!canViewMultipleCharts && (
               <div className="absolute inset-0 bg-card/80 backdrop-blur-sm rounded-2xl flex items-center justify-center">
                 <div className="text-center">
                   <Lock className="w-5 h-5 text-muted-foreground mx-auto mb-2" />
-                  <p className="text-xs text-muted-foreground font-medium">Premium feature</p>
+                  <p className="text-xs text-muted-foreground font-medium">
+                    Premium feature
+                  </p>
                 </div>
               </div>
             )}
@@ -114,9 +136,11 @@ export default function WageComparison() {
             transition={{ delay: 0.25 }}
             className="bg-card border border-border rounded-2xl p-4 relative"
           >
-            <h3 className="font-heading font-semibold text-sm mb-3">Sector Distribution</h3>
+            <h3 className="font-heading font-semibold text-sm mb-3">
+              Sector Distribution
+            </h3>
             <div className="grid grid-cols-2 gap-2">
-              {countries.slice(0, 2).map(country => (
+              {countries.slice(0, 2).map((country) => (
                 <SectorPieChart
                   key={country}
                   data={SECTOR_DISTRIBUTION[country] || []}
@@ -128,7 +152,9 @@ export default function WageComparison() {
               <div className="absolute inset-0 bg-card/80 backdrop-blur-sm rounded-2xl flex items-center justify-center">
                 <div className="text-center">
                   <Lock className="w-5 h-5 text-muted-foreground mx-auto mb-2" />
-                  <p className="text-xs text-muted-foreground font-medium">Premium feature</p>
+                  <p className="text-xs text-muted-foreground font-medium">
+                    Premium feature
+                  </p>
                 </div>
               </div>
             )}
@@ -141,13 +167,20 @@ export default function WageComparison() {
             transition={{ delay: 0.3 }}
             className="bg-card border border-border rounded-2xl p-4 md:col-span-2 relative"
           >
-            <h3 className="font-heading font-semibold text-sm mb-3">Wage Density Curve</h3>
-            <DensityCurveChart wageDataMap={COUNTRY_WAGE_DATA} countries={countries} />
+            <h3 className="font-heading font-semibold text-sm mb-3">
+              Wage Density Curve
+            </h3>
+            <DensityCurveChart
+              wageDataMap={COUNTRY_WAGE_DATA}
+              countries={countries}
+            />
             {!canViewMultipleCharts && (
               <div className="absolute inset-0 bg-card/80 backdrop-blur-sm rounded-2xl flex items-center justify-center">
                 <div className="text-center">
                   <Lock className="w-5 h-5 text-muted-foreground mx-auto mb-2" />
-                  <p className="text-xs text-muted-foreground font-medium">Premium feature</p>
+                  <p className="text-xs text-muted-foreground font-medium">
+                    Premium feature
+                  </p>
                 </div>
               </div>
             )}
@@ -178,8 +211,15 @@ export default function WageComparison() {
         </motion.div>
       </div>
 
-      <LoginWarnModal open={showLoginModal} onClose={() => setShowLoginModal(false)} />
-      <UpgradeModal open={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} feature="Exporting comparisons" />
+      <LoginWarnModal
+        open={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+      />
+      <UpgradeModal
+        open={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        feature="Exporting comparisons"
+      />
     </div>
   );
 }

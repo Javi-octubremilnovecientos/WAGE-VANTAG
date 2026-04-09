@@ -1,22 +1,16 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
-import { FileText, Trash2, Plus, ArrowLeft } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { FileText, Trash2, Plus, ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function Templates() {
-  const queryClient = useQueryClient();
+  // TODO: Implementar cuando se creen tablas de usuario en Supabase
+  const [templates, setTemplates] = useState([]);
+  const isLoading = false;
 
-  const { data: templates = [], isLoading } = useQuery({
-    queryKey: ['templates'],
-    queryFn: () => base44.entities.FormTemplate.list('-created_date'),
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.FormTemplate.delete(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['templates'] }),
-  });
+  const handleDelete = (id) => {
+    setTemplates((prev) => prev.filter((t) => t.id !== id));
+  };
 
   return (
     <div className="min-h-screen pb-16">
@@ -26,18 +20,26 @@ export default function Templates() {
           animate={{ opacity: 1, y: 0 }}
           className="pt-8 mb-6"
         >
-          <Link to="/dashboard" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4">
+          <Link
+            to="/dashboard"
+            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
+          >
             <ArrowLeft className="w-4 h-4" />
             Back to Dashboard
           </Link>
           <h1 className="font-heading text-2xl font-bold mb-1">My Templates</h1>
-          <p className="text-sm text-muted-foreground">Saved form templates for quick comparisons</p>
+          <p className="text-sm text-muted-foreground">
+            Saved form templates for quick comparisons
+          </p>
         </motion.div>
 
         {isLoading ? (
           <div className="space-y-3">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="bg-card border border-border rounded-xl p-4 animate-pulse">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="bg-card border border-border rounded-xl p-4 animate-pulse"
+              >
                 <div className="h-4 bg-muted rounded w-1/3 mb-2" />
                 <div className="h-3 bg-muted rounded w-1/2" />
               </div>
@@ -60,12 +62,12 @@ export default function Templates() {
                   <div>
                     <p className="text-sm font-medium">{template.name}</p>
                     <p className="text-xs text-muted-foreground">
-                      {template.country} · {template.gender || 'Any'}
+                      {template.country} · {template.gender || "Any"}
                     </p>
                   </div>
                 </div>
                 <button
-                  onClick={() => deleteMutation.mutate(template.id)}
+                  onClick={() => handleDelete(template.id)}
                   className="p-2 text-destructive/60 hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -76,7 +78,9 @@ export default function Templates() {
         ) : (
           <div className="bg-muted/30 rounded-2xl p-8 text-center">
             <FileText className="w-8 h-8 text-muted-foreground/40 mx-auto mb-3" />
-            <p className="text-sm text-muted-foreground mb-3">No templates saved yet</p>
+            <p className="text-sm text-muted-foreground mb-3">
+              No templates saved yet
+            </p>
             <Link
               to="/"
               className="inline-flex items-center gap-1.5 text-xs text-primary font-medium"

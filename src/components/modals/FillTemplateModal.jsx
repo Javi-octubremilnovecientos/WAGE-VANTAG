@@ -1,28 +1,35 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, FileText, Check } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
-import { useUserPlan } from '@/lib/UserPlanContext';
-import UpgradeModal from './UpgradeModal';
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { X, FileText, Check } from "lucide-react";
+import { useUserPlan } from "@/lib/UserPlanContext";
+import UpgradeModal from "./UpgradeModal";
 
 export default function FillTemplateModal({ open, onClose, onApply }) {
   const { isPremium } = useUserPlan();
   const [selected, setSelected] = useState(null);
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const [templates, setTemplates] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const { data: templates = [], isLoading } = useQuery({
-    queryKey: ['templates'],
-    queryFn: () => base44.entities.FormTemplate.list('-created_date'),
-    enabled: open,
-  });
+  // TODO: Conectar con Supabase para cargar templates
+  useEffect(() => {
+    if (open) {
+      setIsLoading(true);
+      // Simulación temporal - reemplazar con RTK Query endpoint
+      const storedTemplates = JSON.parse(
+        localStorage.getItem("templates") || "[]",
+      );
+      setTemplates(storedTemplates);
+      setIsLoading(false);
+    }
+  }, [open]);
 
   const handleSelect = (template) => {
     if (!isPremium && selected && selected.id !== template.id) {
       setShowUpgrade(true);
       return;
     }
-    setSelected(prev => prev?.id === template.id ? null : template);
+    setSelected((prev) => (prev?.id === template.id ? null : template));
   };
 
   const handleApply = () => {
@@ -59,18 +66,23 @@ export default function FillTemplateModal({ open, onClose, onApply }) {
 
               {isLoading ? (
                 <div className="space-y-3">
-                  {[1, 2].map(i => (
-                    <div key={i} className="bg-muted rounded-xl p-4 animate-pulse h-16" />
+                  {[1, 2].map((i) => (
+                    <div
+                      key={i}
+                      className="bg-muted rounded-xl p-4 animate-pulse h-16"
+                    />
                   ))}
                 </div>
               ) : templates.length === 0 ? (
                 <div className="text-center py-8">
                   <FileText className="w-8 h-8 text-muted-foreground/40 mx-auto mb-3" />
-                  <p className="text-sm text-muted-foreground">No templates saved yet</p>
+                  <p className="text-sm text-muted-foreground">
+                    No templates saved yet
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-2 mb-5">
-                  {templates.map(template => {
+                  {templates.map((template) => {
                     const isSelected = selected?.id === template.id;
                     const isDisabled = !isPremium && selected && !isSelected;
                     return (
@@ -79,10 +91,10 @@ export default function FillTemplateModal({ open, onClose, onApply }) {
                         onClick={() => handleSelect(template)}
                         className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border transition-all text-left ${
                           isSelected
-                            ? 'border-primary bg-primary/5'
+                            ? "border-primary bg-primary/5"
                             : isDisabled
-                            ? 'border-border bg-muted/30 opacity-50 cursor-not-allowed'
-                            : 'border-border bg-card hover:border-primary/40'
+                              ? "border-border bg-muted/30 opacity-50 cursor-not-allowed"
+                              : "border-border bg-card hover:border-primary/40"
                         }`}
                       >
                         <div className="flex items-center gap-3">
@@ -90,13 +102,17 @@ export default function FillTemplateModal({ open, onClose, onApply }) {
                             <FileText className="w-4 h-4 text-primary" />
                           </div>
                           <div>
-                            <p className="text-sm font-medium">{template.name}</p>
+                            <p className="text-sm font-medium">
+                              {template.name}
+                            </p>
                             <p className="text-xs text-muted-foreground">
-                              {template.country} · {template.gender || 'Any'}
+                              {template.country} · {template.gender || "Any"}
                             </p>
                           </div>
                         </div>
-                        {isSelected && <Check className="w-4 h-4 text-primary flex-shrink-0" />}
+                        {isSelected && (
+                          <Check className="w-4 h-4 text-primary flex-shrink-0" />
+                        )}
                       </button>
                     );
                   })}

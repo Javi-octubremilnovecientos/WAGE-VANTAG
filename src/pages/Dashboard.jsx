@@ -1,30 +1,50 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
-import { BarChart3, FileText, Settings, CreditCard, ChevronRight, Crown, Home } from 'lucide-react';
-import { useUserPlan } from '@/lib/UserPlanContext';
+import React from "react";
+import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import {
+  BarChart3,
+  FileText,
+  Settings,
+  CreditCard,
+  ChevronRight,
+  Crown,
+  Home,
+} from "lucide-react";
+import { useUserPlan } from "@/lib/UserPlanContext";
 
 const quickActions = [
-  { label: 'Saved Comparisons', path: '/comparisons', icon: BarChart3, color: 'bg-primary/10 text-primary' },
-  { label: 'My Templates', path: '/templates', icon: FileText, color: 'bg-secondary/20 text-secondary-foreground' },
-  { label: 'Settings', path: '/settings', icon: Settings, color: 'bg-muted text-muted-foreground' },
-  { label: 'Manage Plan', path: '/manage-plan', icon: CreditCard, color: 'bg-primary/10 text-primary' },
+  {
+    label: "Saved Comparisons",
+    path: "/comparisons",
+    icon: BarChart3,
+    color: "bg-primary/10 text-primary",
+  },
+  {
+    label: "My Templates",
+    path: "/templates",
+    icon: FileText,
+    color: "bg-secondary/20 text-secondary-foreground",
+  },
+  {
+    label: "Settings",
+    path: "/settings",
+    icon: Settings,
+    color: "bg-muted text-muted-foreground",
+  },
+  {
+    label: "Manage Plan",
+    path: "/manage-plan",
+    icon: CreditCard,
+    color: "bg-primary/10 text-primary",
+  },
 ];
 
 export default function Dashboard() {
-  const { user, isPremium, plan } = useUserPlan();
+  const { user, isPremium } = useUserPlan();
 
-  const { data: comparisons = [] } = useQuery({
-    queryKey: ['comparisons'],
-    queryFn: () => base44.entities.WageComparison.list('-created_date', 5),
-  });
-
-  const { data: templates = [] } = useQuery({
-    queryKey: ['templates'],
-    queryFn: () => base44.entities.FormTemplate.list('-created_date', 5),
-  });
+  // TODO: Implementar cuando se creen tablas de usuario en Supabase
+  const comparisons = [];
+  const templates = [];
 
   return (
     <div className="min-h-screen pb-16">
@@ -37,15 +57,21 @@ export default function Dashboard() {
         >
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm text-muted-foreground mb-1">Welcome back,</p>
+              <p className="text-sm text-muted-foreground mb-1">
+                Welcome back,
+              </p>
               <h1 className="font-heading text-2xl font-bold">
-                {user?.full_name || 'User'}
+                {user?.full_name || "User"}
               </h1>
               <div className="flex items-center gap-2 mt-2">
-                <span className={`text-xs font-medium px-2 py-1 rounded-full ${
-                  isPremium ? 'bg-secondary/20 text-secondary-foreground' : 'bg-muted text-muted-foreground'
-                }`}>
-                  {isPremium ? '✦ Premium' : 'Free Plan'}
+                <span
+                  className={`text-xs font-medium px-2 py-1 rounded-full ${
+                    isPremium
+                      ? "bg-secondary/20 text-secondary-foreground"
+                      : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  {isPremium ? "✦ Premium" : "Free Plan"}
                 </span>
               </div>
             </div>
@@ -67,13 +93,15 @@ export default function Dashboard() {
           transition={{ delay: 0.1 }}
           className="grid grid-cols-2 gap-3 mb-8"
         >
-          {quickActions.map(action => (
+          {quickActions.map((action) => (
             <Link
               key={action.path}
               to={action.path}
               className="bg-card border border-border rounded-xl p-4 hover:border-primary/20 transition-colors"
             >
-              <div className={`w-9 h-9 rounded-lg ${action.color} flex items-center justify-center mb-3`}>
+              <div
+                className={`w-9 h-9 rounded-lg ${action.color} flex items-center justify-center mb-3`}
+              >
                 <action.icon className="w-4 h-4" />
               </div>
               <span className="text-sm font-medium">{action.label}</span>
@@ -89,23 +117,28 @@ export default function Dashboard() {
           className="mb-8"
         >
           <div className="flex items-center justify-between mb-3">
-            <h2 className="font-heading font-semibold text-lg">Recent Comparisons</h2>
-            <Link to="/comparisons" className="text-xs text-primary font-medium">
+            <h2 className="font-heading font-semibold text-lg">
+              Recent Comparisons
+            </h2>
+            <Link
+              to="/comparisons"
+              className="text-xs text-primary font-medium"
+            >
               View all
             </Link>
           </div>
           {comparisons.length > 0 ? (
             <div className="space-y-2">
-              {comparisons.map(comp => (
+              {comparisons.map((comp) => (
                 <Link
                   key={comp.id}
-                  to={`/wage-comparison?countries=${comp.countries?.join(',')}`}
+                  to={`/wage-comparison?countries=${comp.countries?.join(",")}`}
                   className="bg-card border border-border rounded-xl p-4 flex items-center justify-between hover:border-primary/20 transition-colors"
                 >
                   <div>
                     <p className="text-sm font-medium">{comp.title}</p>
                     <p className="text-xs text-muted-foreground">
-                      {comp.countries?.join(' vs ')}
+                      {comp.countries?.join(" vs ")}
                     </p>
                   </div>
                   <ChevronRight className="w-4 h-4 text-muted-foreground" />
@@ -114,8 +147,13 @@ export default function Dashboard() {
             </div>
           ) : (
             <div className="bg-muted/30 rounded-xl p-6 text-center">
-              <p className="text-sm text-muted-foreground">No comparisons saved yet</p>
-              <Link to="/" className="text-xs text-primary font-medium mt-2 inline-block">
+              <p className="text-sm text-muted-foreground">
+                No comparisons saved yet
+              </p>
+              <Link
+                to="/"
+                className="text-xs text-primary font-medium mt-2 inline-block"
+              >
                 Start comparing →
               </Link>
             </div>
@@ -139,7 +177,9 @@ export default function Dashboard() {
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-semibold">Upgrade to Premium</p>
-                  <p className="text-xs text-muted-foreground">Unlock exports, multiple charts & more</p>
+                  <p className="text-xs text-muted-foreground">
+                    Unlock exports, multiple charts & more
+                  </p>
                 </div>
                 <ChevronRight className="w-4 h-4 text-muted-foreground" />
               </div>

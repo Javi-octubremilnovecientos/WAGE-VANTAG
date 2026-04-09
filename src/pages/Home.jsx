@@ -1,35 +1,34 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { BarChart2 } from 'lucide-react';
-import BoxPlotChart from '@/components/charts/BoxPlotChart';
-import WageFormStep from '@/components/form/WageFormStep';
-import LoginWarnModal from '@/components/modals/LoginWarnModal';
-import UpgradeModal from '@/components/modals/UpgradeModal';
-import ComparatorModal from '@/components/modals/ComparatorModal';
-import FillTemplateModal from '@/components/modals/FillTemplateModal';
-import SaveTemplateModal from '@/components/modals/SaveTemplateModal';
-import { COUNTRY_WAGE_DATA } from '@/lib/wageData';
-import { useUserPlan } from '@/lib/UserPlanContext';
-import { base44 } from '@/api/base44Client';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { BarChart2 } from "lucide-react";
+import BoxPlotChart from "@/components/charts/BoxPlotChart";
+import WageFormStep from "@/components/form/WageFormStep";
+import LoginWarnModal from "@/components/modals/LoginWarnModal";
+import UpgradeModal from "@/components/modals/UpgradeModal";
+import ComparatorModal from "@/components/modals/ComparatorModal";
+import FillTemplateModal from "@/components/modals/FillTemplateModal";
+import SaveTemplateModal from "@/components/modals/SaveTemplateModal";
+import { COUNTRY_WAGE_DATA } from "@/lib/wageData";
+import { useUserPlan } from "@/lib/UserPlanContext";
 
 const INITIAL_FORM = {
-  country: '',
-  gender: '',
+  country: "",
+  gender: "",
   monthly_wage: 0,
-  economic_activity: '',
-  occupation: '',
-  position: '',
-  education_level: '',
-  company_size: '',
-  experience_years: '',
+  economic_activity: "",
+  occupation: "",
+  position: "",
+  education_level: "",
+  company_size: "",
+  experience_years: "",
 };
 
 // Steps: 0=country+gender+wage, 1=activity+occupation+position, 2=education+size+experience
 const STEPS = [
-  ['country', 'gender', 'monthly_wage'],
-  ['economic_activity', 'occupation', 'position'],
-  ['education_level', 'company_size', 'experience_years'],
+  ["country", "gender", "monthly_wage"],
+  ["economic_activity", "occupation", "position"],
+  ["education_level", "company_size", "experience_years"],
 ];
 
 export default function Home() {
@@ -44,17 +43,17 @@ export default function Home() {
   const [showComparatorModal, setShowComparatorModal] = useState(false);
   const [showFillTemplateModal, setShowFillTemplateModal] = useState(false);
   const [showSaveTemplateModal, setShowSaveTemplateModal] = useState(false);
-  const [upgradeFeature, setUpgradeFeature] = useState('');
+  const [upgradeFeature, setUpgradeFeature] = useState("");
 
   const hasCountrySelected = countries.length > 0;
 
   const updateFormData = (field, value) => {
-    setFormData(prev => {
+    setFormData((prev) => {
       const next = { ...prev, [field]: value };
       // Sync countries list when country field changes
-      if (field === 'country') {
+      if (field === "country") {
         if (value) {
-          setCountries(prev_c => {
+          setCountries((prev_c) => {
             const updated = [...prev_c];
             updated[0] = value;
             return updated.length === 0 ? [value] : updated;
@@ -70,16 +69,20 @@ export default function Home() {
     if (country && !countries[0]) {
       setCountries([country]);
     } else if (country) {
-      setCountries(prev => { const u = [...prev]; u[0] = country; return u; });
+      setCountries((prev) => {
+        const u = [...prev];
+        u[0] = country;
+        return u;
+      });
     }
   };
 
   const handleNext = () => {
-    if (step < STEPS.length - 1) setStep(s => s + 1);
+    if (step < STEPS.length - 1) setStep((s) => s + 1);
   };
 
   const handleBack = () => {
-    if (step > 0) setStep(s => s - 1);
+    if (step > 0) setStep((s) => s - 1);
   };
 
   const handleCompare = () => {
@@ -88,7 +91,7 @@ export default function Home() {
 
   const handleGoToSheet = () => {
     const params = new URLSearchParams({
-      countries: countries.join(','),
+      countries: countries.join(","),
       wage: formData.monthly_wage || 0,
     });
     navigate(`/wage-comparison?${params.toString()}`);
@@ -99,14 +102,10 @@ export default function Home() {
       setShowLoginModal(true);
       return;
     }
-    // Check template limit for free users
+    // TODO: Implementar check de límite cuando se creen tablas en Supabase
     if (!isPremium) {
-      const existing = await base44.entities.FormTemplate.list();
-      if (existing.length >= 1) {
-        setUpgradeFeature('Saving more than 1 template');
-        setShowUpgradeModal(true);
-        return;
-      }
+      // Por ahora, mostramos directamente el modal de guardado
+      // En el futuro: verificar límite de templates
     }
     setShowSaveTemplateModal(true);
   };
@@ -120,14 +119,28 @@ export default function Home() {
   };
 
   const handleApplyTemplate = (template) => {
-    const fields = ['country', 'gender', 'monthly_wage', 'economic_activity', 'occupation', 'position', 'education_level', 'company_size', 'experience_years'];
-    fields.forEach(f => {
+    const fields = [
+      "country",
+      "gender",
+      "monthly_wage",
+      "economic_activity",
+      "occupation",
+      "position",
+      "education_level",
+      "company_size",
+      "experience_years",
+    ];
+    fields.forEach((f) => {
       if (template[f] !== undefined && template[f] !== null) {
         updateFormData(f, template[f]);
       }
     });
     if (template.country) {
-      setCountries(prev => { const u = [...prev]; u[0] = template.country; return u; });
+      setCountries((prev) => {
+        const u = [...prev];
+        u[0] = template.country;
+        return u;
+      });
     }
   };
 
@@ -143,8 +156,10 @@ export default function Home() {
   const isLastStep = step === STEPS.length - 1;
 
   return (
-    <div className="min-h-screen pb-12">
-      <div className="max-w-lg mx-auto px-4">
+    <div className="h-full flex flex-col justify-center py-12 sm:py-48 ">
+      <div
+        className={`mx-auto w-full px-4 ${hasCountrySelected ? "max-w-5xl" : "max-w-lg"}`}
+      >
         {/* Title */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -171,70 +186,63 @@ export default function Home() {
           )}
         </AnimatePresence>
 
-        {/* Chart — only shown after country selected */}
-        <AnimatePresence>
-          {hasCountrySelected && (
-            <motion.div
-              key="chart"
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              className="mt-5"
-            >
-              <BoxPlotChart
-                countries={countries}
-                wageDataMap={COUNTRY_WAGE_DATA}
-                userWage={formData.monthly_wage}
-                height={280}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Compare Countries button — between chart and form */}
-        <AnimatePresence>
-          {hasCountrySelected && (
-            <motion.div
-              key="compare-btn"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              className="mt-4 mb-2"
-            >
-              <button
-                onClick={handleCompare}
-                className="w-full py-2.5 rounded-2xl bg-muted text-foreground font-heading font-semibold text-sm hover:bg-muted/80 transition-colors flex items-center justify-center gap-2"
-              >
-                <BarChart2 className="w-4 h-4" />
-                Compare countries
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Step form */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className={hasCountrySelected ? 'mt-4' : 'mt-6'}
+        {/* Main content: stacked on mobile, side-by-side on desktop */}
+        <div
+          className={`flex flex-col md:flex-row md:gap-10 md:items-start ${hasCountrySelected ? "mt-4" : "mt-6"}`}
         >
-          <WageFormStep
-            formData={formData}
-            updateFormData={updateFormData}
-            onCountrySet={handleCountrySet}
-            step={step}
-            totalSteps={STEPS.length}
-            onNext={handleNext}
-            onBack={handleBack}
-            onGoToSheet={handleGoToSheet}
-            onSaveTemplate={handleSaveTemplate}
-            onFillTemplate={handleFillTemplate}
-            hasCountrySelected={hasCountrySelected}
-            isLastStep={isLastStep}
-            isAuthenticated={isAuthenticated}
-          />
-        </motion.div>
+          {/* LEFT on desktop / BOTTOM on mobile: Step form */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="order-2 md:order-1 md:w-[440px] md:flex-shrink-0"
+          >
+            <WageFormStep
+              formData={formData}
+              updateFormData={updateFormData}
+              onCountrySet={handleCountrySet}
+              step={step}
+              totalSteps={STEPS.length}
+              onNext={handleNext}
+              onBack={handleBack}
+              onGoToSheet={handleGoToSheet}
+              onSaveTemplate={handleSaveTemplate}
+              onFillTemplate={handleFillTemplate}
+              hasCountrySelected={hasCountrySelected}
+              isLastStep={isLastStep}
+              isAuthenticated={isAuthenticated}
+            />
+          </motion.div>
+
+          {/* RIGHT on desktop / TOP on mobile: Chart + Compare button */}
+          <AnimatePresence>
+            {hasCountrySelected && (
+              <motion.div
+                key="chart-section"
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                className="order-1 md:order-2 flex-1 mb-4 md:mb-0"
+              >
+                <BoxPlotChart
+                  countries={countries}
+                  wageDataMap={COUNTRY_WAGE_DATA}
+                  userWage={formData.monthly_wage}
+                  height={280}
+                />
+                <div className="mt-4">
+                  <button
+                    onClick={handleCompare}
+                    className="w-full py-2.5 rounded-2xl bg-muted text-foreground font-heading font-semibold text-sm hover:bg-muted/80 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <BarChart2 className="w-4 h-4" />
+                    Compare countries
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
 
       {/* Modals */}
